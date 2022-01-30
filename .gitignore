@@ -1,0 +1,13 @@
+*.log
+*.pot
+*.pyc
+__pycache__/
+
+.idea
+.postgres_data
+venv
+.env
+db.sqlite3
+media
+account/migrations
+likeapp/migrations

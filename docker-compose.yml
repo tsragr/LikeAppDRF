@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  postgres_db:
+    container_name: likeapp_postgres
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5436:5432
+    environment:
+      - POSTGRES_USER=maxim
+      - POSTGRES_PASSWORD=123qwe
+      - POSTGRES_DB=likeapppsql
+    env_file:
+      - .env
+
+
+  web_app:
+    container_name: likeapp
+    build: .
+    command: bash /usr/src/LikeApp/start.sh
+    volumes:
+      - .:/usr/src/LikeApp
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres_db
+    restart: always
+    env_file:
+      - .env
+
+  redis:
+    image: redis
+    container_name: likeapp_redis
+    ports:
+      - 6379:6379
+    restart: always
+
+  celery:
+    restart: always
+    container_name: likeapp_celery
+    build: .
+    command: celery -A config worker --loglevel=INFO
+    volumes:
+      - .:/usr/src/LikeApp
+    links:
+      - redis
+    depends_on:
+      - postgres_db
+      - web_app
+      - redis
+    env_file:
+      - .env
+volumes:
+  postgres_data:
